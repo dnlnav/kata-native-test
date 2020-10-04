@@ -31,6 +31,12 @@ describe("getPossibleCombinations", () => {
         );
       });
     });
+    describe("when there is no possible attacks", () => {
+      test("returns an empty array", () => {
+        const testPotionArray = [0, 0, 0];
+        expect(getPossibleAttacks(testPotionArray)).toEqual([]);
+      });
+    });
   });
 });
 

@@ -1,12 +1,8 @@
+import { filterZeroValues, sum } from "./../utils/arrayManipulation";
 import { useState } from "react";
 import { DAMAGE_TABLE } from "../constants/DamageTable";
 import { inventory, cacheType } from "../constants/types";
-
-let cache: cacheType = {};
-
-const sum = (array: number[]) => array.reduce((acc, value) => acc + value);
-
-const filterZeroValues = (number: number) => number > 0;
+import { memoize } from "../utils/memo";
 
 export const getDamage = (
   currentState: inventory,
@@ -33,15 +29,6 @@ export const getPossibleAttacks = (arr: inventory): inventory[] => {
     .map((string) => string.split("").map((v) => parseInt(v)));
 };
 
-const memoizedGetMaximumDamage = (...states: [inventory, inventory]) => {
-  const statesKey = JSON.stringify(states);
-  if (statesKey in cache) return cache[statesKey];
-
-  const result = getMaximumDamage(...states);
-  cache[statesKey] = result;
-  return result;
-};
-
 export const getMaximumDamage = (
   potionState: inventory,
   prevState: inventory | null = null
@@ -59,6 +46,8 @@ export const getMaximumDamage = (
     .filter(filterZeroValues)
     .sort((a, b) => b - a);
 };
+
+const memoizedGetMaximumDamage = memoize(getMaximumDamage);
 
 export const useDamageCalculator = (initialState: inventory) => {
   const [potions, setPotions] = useState<inventory>(initialState);
