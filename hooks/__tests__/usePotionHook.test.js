@@ -1,6 +1,5 @@
-import {
-  getPossibleAttacks,
-} from "../usePotionHook";
+import InventoryNode from "../../classes/InventoryNode";
+import { getPossibleAttacks, getMaximumDamage } from "../usePotionHook";
 
 describe("getPossibleCombinations", () => {
   describe("given an array with potions", () => {
@@ -34,12 +33,10 @@ describe("getPossibleCombinations", () => {
 
 describe("getMaximumDamage", () => {
   describe("given an array with potions", () => {
-    test("returns the maximum damage and number of potions used per attack", () => {
-      const testPotionArray = [2, 1, 1];
-      const expectedResult = [13, [3, 1]];
-      expect(getMaximumDamage(testPotionArray)).toEqual(
-        expectedResult
-      );
+    test("returns the damage per attack for the maximum damage", () => {
+      const testPotionArray = new InventoryNode([2, 2, 1, 1, 1]);
+      const expectedResult = [25, 3, 3];
+      expect(getMaximumDamage(testPotionArray)).toEqual(expectedResult);
     });
   });
 });
