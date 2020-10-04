@@ -1,7 +1,6 @@
 import {
-  getNextPotionState,
-  getPossibleCombinations,
-} from "../damageCalculator";
+  getPossibleAttacks,
+} from "../usePotionHook";
 
 describe("getPossibleCombinations", () => {
   describe("given an array with potions", () => {
@@ -11,13 +10,13 @@ describe("getPossibleCombinations", () => {
         const expectedCombinations = [
           [1, 3, 1],
           [2, 2, 1],
-          [1, 3, 0],
+          [2, 3, 0],
           [1, 2, 1],
           [2, 2, 0],
           [1, 3, 0],
           [1, 2, 0],
         ];
-        expect(getPossibleCombinations(testPotionArray).sort()).toEqual(
+        expect(getPossibleAttacks(testPotionArray).sort()).toEqual(
           expectedCombinations.sort()
         );
       });
@@ -25,10 +24,22 @@ describe("getPossibleCombinations", () => {
     describe("when one of the potion's quantity is 0", () => {
       test("return a 0 for that potion for all combinations", () => {
         const testPotionArray = [2, 0, 1];
-        getPossibleCombinations(testPotionArray).forEach((combination) =>
+        getPossibleAttacks(testPotionArray).forEach((combination) =>
           expect(combination[1]).toEqual(0)
         );
       });
+    });
+  });
+});
+
+describe("getMaximumDamage", () => {
+  describe("given an array with potions", () => {
+    test("returns the maximum damage and number of potions used per attack", () => {
+      const testPotionArray = [2, 1, 1];
+      const expectedResult = [13, [3, 1]];
+      expect(getMaximumDamage(testPotionArray)).toEqual(
+        expectedResult
+      );
     });
   });
 });
