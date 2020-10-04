@@ -112,7 +112,9 @@
 <a name='L53'></a><a href='#L53'>53</a>
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
-<a name='L56'></a><a href='#L56'>56</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -122,20 +124,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">605x</span>
 <span class="cline-any cline-yes">604x</span>
-<span class="cline-any cline-yes">3018x</span>
+<span class="cline-any cline-yes">603x</span>
+<span class="cline-any cline-yes">3015x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">604x</span>
+<span class="cline-any cline-yes">603x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">606x</span>
+<span class="cline-any cline-yes">607x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">7760x</span>
-<span class="cline-any cline-yes">3026x</span>
-<span class="cline-any cline-yes">3026x</span>
+<span class="cline-any cline-yes">7763x</span>
+<span class="cline-any cline-yes">3029x</span>
+<span class="cline-any cline-yes">3029x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -164,16 +166,18 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { filterZeroValues, sum } from "./../utils/arrayManipulation";
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { getTotalDamage } from "./../utils/damage";
+import { filterZeroValues, sum } from "./../utils/arrayManipulation";
 import { useState } from "react";
-import { DAMAGE_TABLE } from "../constants/DamageTable";
 import { inventory, cacheType } from "../constants/types";
 import { memoize } from "../utils/memo";
 &nbsp;
-export const getDamage = (
+export const getPotionsUsed = (
   currentState: inventory,
   prevState: inventory | null
 ): number =&gt; {
@@ -181,7 +185,7 @@ export const getDamage = (
   const potionsUsed: inventory = prevState
     .map((potion, index) =&gt; potion - currentState[index])
     .filter(filterZeroValues);
-  return DAMAGE_TABLE[potionsUsed.length];
+  return potionsUsed.length;
 };
 &nbsp;
 export const getPossibleAttacks = (arr: inventory): inventory[] =&gt; {
@@ -203,22 +207,24 @@ export const getMaximumDamage = (
   prevState: inventory | null = null
 ): number[] =&gt; {
   const possibleAttacks = getPossibleAttacks(potionState);
-  const currentDamage = getDamage(potionState, prevState);
+  const potionsUsed = getPotionsUsed(potionState, prevState);
 &nbsp;
-  if (!possibleAttacks.length) return [currentDamage];
+  if (!possibleAttacks.length) return [potionsUsed];
 &nbsp;
   const maxChild = possibleAttacks
     .map((child) =&gt; memoizedGetMaximumDamage(child, potionState))
-    .reduce((a, b) =&gt; (sum(b) &gt; sum(a) ? b : a));
+    .reduce((a, b) =&gt; (getTotalDamage(b) &gt; getTotalDamage(a) ? b : a));
 &nbsp;
-  return [...maxChild, currentDamage]
+  return [...maxChild, potionsUsed]
     .filter(filterZeroValues)
     .sort((a, b) =&gt; b - a);
 };
 &nbsp;
 const memoizedGetMaximumDamage = memoize(getMaximumDamage);
 &nbsp;
-export const useDamageCalculator = <span class="fstat-no" title="function not covered" >(i</span>nitialState: inventory) =&gt; {
+export const useDamageCalculator = <span class="fstat-no" title="function not covered" >(</span>
+  initialState: inventory
+): [number[], typeof setPotions] =&gt; {
   const [potions, setPotions] = <span class="cstat-no" title="statement not covered" >useState&lt;inventory&gt;(initialState);</span>
 <span class="cstat-no" title="statement not covered" >  return [getMaximumDamage(potions), setPotions];</span>
 };
@@ -229,7 +235,7 @@ export const useDamageCalculator = <span class="fstat-no" title="function not co
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Sun Oct 04 2020 09:56:23 GMT-0500 (Ecuador Time)
+                at Sun Oct 04 2020 17:27:03 GMT-0500 (Ecuador Time)
             </div>
         </div>
         <script src="../prettify.js"></script>

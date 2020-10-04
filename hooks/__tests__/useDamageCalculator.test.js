@@ -40,21 +40,11 @@ describe("getPossibleCombinations", () => {
   });
 });
 
-describe("getDamage", () => {
-  describe("given an AttackNode", () => {
-    test("return the damage produces on that attack", () => {
-      const root = [1, 2, 1];
-      const attackNode = [1, 1, 0];
-      expect(getDamage(attackNode, root)).toEqual(5);
-    });
-  });
-});
-
 describe("getMaximumDamage", () => {
   describe("given an array with potions", () => {
     test("returns the damage per attack for the maximum damage", () => {
       const testPotionArray = [2, 2, 1, 1, 1];
-      const expectedResult = [25, 3, 3];
+      const expectedResult = [5, 1, 1];
       expect(getMaximumDamage(testPotionArray)).toEqual(expectedResult);
     });
   });
