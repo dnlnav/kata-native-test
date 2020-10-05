@@ -17,7 +17,7 @@ function getMaxDamageNextAttacks(
     .reduce((a, b) => (getTotalDamage(b) > getTotalDamage(a) ? b : a));
 }
 
-export function getPotionsUsedNumber(
+function getPotionsUsedNumber(
   currentState: potionInventory,
   prevState: potionInventory | null
 ): number {
@@ -28,7 +28,7 @@ export function getPotionsUsedNumber(
   return potionsUsed.length;
 }
 
-export function getPossibleNexStates(
+export function getPossibleNextStates(
   currentState: potionInventory
 ): potionInventory[] {
   return currentState
@@ -48,7 +48,7 @@ export function getAttacksForMaximumDamage(
   currentPotionState: potionInventory,
   prevState: potionInventory | null = null
 ): number[] {
-  const possibleNextStates = getPossibleNexStates(currentPotionState);
+  const possibleNextStates = getPossibleNextStates(currentPotionState);
   const currentStatePotionsUsed = getPotionsUsedNumber(
     currentPotionState,
     prevState
