@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import { StyleSheet, Button } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useDamageCalculator } from "../hooks/useDamageCalculator";
 import { getDamage, getTotalDamage } from "../utils/damage";
+import InputGroup from "./InputGroup";
 
-import { Text, TextInput, View, ScrollView } from "./Themed";
+import { Text, View, ScrollView } from "./Themed";
 
 export default function AttackCalculator() {
-  const [redPotion, setRedPotion] = useState<string>();
-  const [bluePotion, setBluePotion] = useState<string>();
-  const [greenPotion, setGreenPotion] = useState<string>();
-  const [yellowPotion, setYellowPotion] = useState<string>();
-  const [greyPotion, setGreyPotion] = useState<string>();
+  const [redPotion, setRedPotion] = useState<string>("");
+  const [bluePotion, setBluePotion] = useState<string>("");
+  const [greenPotion, setGreenPotion] = useState<string>("");
+  const [yellowPotion, setYellowPotion] = useState<string>("");
+  const [greyPotion, setGreyPotion] = useState<string>("");
   const [showResults, setShowResults] = useState<boolean>(false);
 
-  const getPotionsArray = () => [
-    parseInt(redPotion || "0"),
-    parseInt(bluePotion || "0"),
-    parseInt(greenPotion || "0"),
-    parseInt(yellowPotion || "0"),
-    parseInt(greyPotion || "0"),
-  ];
+  const getPotionsArray = () => {
+    const getNumber = (string: string) => parseInt(string) || 0;
+
+    return [redPotion, bluePotion, greenPotion, yellowPotion, greyPotion].map(
+      getNumber
+    );
+  };
 
   const [potionNumberPerStep, setPotions] = useDamageCalculator(
     getPotionsArray()
@@ -43,51 +43,31 @@ export default function AttackCalculator() {
           darkColor="rgba(255,255,255,0.1)"
         />
         <View style={styles.inputGroupContainer}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.title}>Poción Roja</Text>
-            <TextInput
-              style={styles.input}
-              value={redPotion}
-              keyboardType="number-pad"
-              onChangeText={setRedPotion}
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.title}>Poción Azul</Text>
-            <TextInput
-              style={styles.input}
-              value={bluePotion}
-              keyboardType="number-pad"
-              onChangeText={setBluePotion}
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.title}>Poción Verde</Text>
-            <TextInput
-              style={styles.input}
-              value={greenPotion}
-              keyboardType="number-pad"
-              onChangeText={setGreenPotion}
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.title}>Poción Amarilla</Text>
-            <TextInput
-              style={styles.input}
-              value={yellowPotion}
-              keyboardType="number-pad"
-              onChangeText={setYellowPotion}
-            />
-          </View>
-          <View style={styles.inputGroup}>
-            <Text style={styles.title}>Poción Gris</Text>
-            <TextInput
-              style={styles.input}
-              value={greyPotion}
-              keyboardType="number-pad"
-              onChangeText={setGreyPotion}
-            />
-          </View>
+          <InputGroup
+            title="Poción Roja"
+            value={redPotion}
+            onChange={setRedPotion}
+          />
+          <InputGroup
+            title="Poción Azul"
+            value={bluePotion}
+            onChange={setBluePotion}
+          />
+          <InputGroup
+            title="Poción Verde"
+            value={greenPotion}
+            onChange={setGreenPotion}
+          />
+          <InputGroup
+            title="Poción Amarilla"
+            value={yellowPotion}
+            onChange={setYellowPotion}
+          />
+          <InputGroup
+            title="Poción Gris"
+            value={greyPotion}
+            onChange={setGreyPotion}
+          />
           <Button
             onPress={handleButtonPress}
             title="Determinar Mejor Ataque"
@@ -102,8 +82,10 @@ export default function AttackCalculator() {
                 {potionNumberPerStep.map((potionNumber, index) => (
                   <Text key={index} style={styles.text}>
                     - Ataque {index + 1}: usar {potionNumber}{" "}
-                    {potionNumber > 1 ? "pociones" : "poción"} para un daño de{" "}
-                    {getDamage(potionNumber)}%
+                    {potionNumber > 1
+                      ? "pociones distintas "
+                      : "poción restante "}
+                    para un daño de {getDamage(potionNumber)}%
                   </Text>
                 ))}
                 <Text style={styles.title}>TOTAL: {totalDamage}%</Text>
@@ -140,24 +122,6 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     marginBottom: 32,
     width: "80%",
-  },
-  inputGroup: {
-    flexDirection: "row",
-    marginBottom: 16,
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  inputLabel: {
-    flex: 8,
-  },
-  input: {
-    height: 40,
-    borderColor: "gray",
-    borderWidth: 1,
-    marginTop: 8,
-    flex: 2,
-    maxWidth: 50,
-    padding: 8,
   },
   resultsContainer: {
     width: "80%",
