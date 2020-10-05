@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, TextInput, Button } from "react-native";
+import { StyleSheet, Button } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDamageCalculator } from "../hooks/useDamageCalculator";
-import { sum } from "../utils/arrayManipulation";
 import { getDamage, getTotalDamage } from "../utils/damage";
 
-import { Text, View } from "./Themed";
+import { Text, TextInput, View, ScrollView } from "./Themed";
 
 export default function AttackCalculator() {
   const [redPotion, setRedPotion] = useState<string>();
@@ -26,94 +26,140 @@ export default function AttackCalculator() {
     getPotionsArray()
   );
 
+  const totalDamage = getTotalDamage(potionNumberPerStep);
+
   const handleButtonPress = () => {
     setPotions(getPotionsArray());
     setShowResults(true);
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Pociones Disponibles</Text>
-      <View
-        style={styles.separator}
-        lightColor="#eee"
-        darkColor="rgba(255,255,255,0.1)"
-      />
-      <View style={styles.getStartedContainer}>
-        <Text style={styles.title}>Poción Roja</Text>
-        <TextInput
-          style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-          value={redPotion}
-          keyboardType="number-pad"
-          onChangeText={setRedPotion}
+    <View style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>Pociones Disponibles</Text>
+        <View
+          style={styles.separator}
+          lightColor="#eee"
+          darkColor="rgba(255,255,255,0.1)"
         />
-        <Text style={styles.title}>Poción Azul</Text>
-        <TextInput
-          style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-          value={bluePotion}
-          keyboardType="number-pad"
-          onChangeText={setBluePotion}
-        />
-        <Text style={styles.title}>Poción Verde</Text>
-        <TextInput
-          style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-          value={greenPotion}
-          keyboardType="number-pad"
-          onChangeText={setGreenPotion}
-        />
-        <Text style={styles.title}>Poción Amarilla</Text>
-        <TextInput
-          style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-          value={yellowPotion}
-          keyboardType="number-pad"
-          onChangeText={setYellowPotion}
-        />
-        <Text style={styles.title}>Poción Gris</Text>
-        <TextInput
-          style={{ height: 40, borderColor: "gray", borderWidth: 1 }}
-          value={greyPotion}
-          keyboardType="number-pad"
-          onChangeText={setGreyPotion}
-        />
-        <Button
-          onPress={handleButtonPress}
-          title="Determinar Mejor Ataque"
-          color="#841584"
-        />
-      </View>
-      {showResults && (
-        <View>
-          <Text style={styles.title}>Resultado:</Text>
-          {potionNumberPerStep.map((potionNumber, index) => (
-            <Text key={index} style={styles.title}>
-              Ataque {index + 1}: usar {potionNumber} pociones para un daño de{" "}
-              {getDamage(potionNumber)}%
-            </Text>
-          ))}
-          <Text>TOTAL: {getTotalDamage(potionNumberPerStep)}%</Text>
+        <View style={styles.inputGroupContainer}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.title}>Poción Roja</Text>
+            <TextInput
+              style={styles.input}
+              value={redPotion}
+              keyboardType="number-pad"
+              onChangeText={setRedPotion}
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.title}>Poción Azul</Text>
+            <TextInput
+              style={styles.input}
+              value={bluePotion}
+              keyboardType="number-pad"
+              onChangeText={setBluePotion}
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.title}>Poción Verde</Text>
+            <TextInput
+              style={styles.input}
+              value={greenPotion}
+              keyboardType="number-pad"
+              onChangeText={setGreenPotion}
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.title}>Poción Amarilla</Text>
+            <TextInput
+              style={styles.input}
+              value={yellowPotion}
+              keyboardType="number-pad"
+              onChangeText={setYellowPotion}
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.title}>Poción Gris</Text>
+            <TextInput
+              style={styles.input}
+              value={greyPotion}
+              keyboardType="number-pad"
+              onChangeText={setGreyPotion}
+            />
+          </View>
+          <Button
+            onPress={handleButtonPress}
+            title="Determinar Mejor Ataque"
+            color="#841584"
+          />
         </View>
-      )}
+        {showResults && (
+          <View style={styles.resultsContainer}>
+            <Text style={styles.title}>Resultado:</Text>
+            {totalDamage > 0 ? (
+              <View>
+                {potionNumberPerStep.map((potionNumber, index) => (
+                  <Text key={index} style={styles.text}>
+                    - Ataque {index + 1}: usar {potionNumber}{" "}
+                    {potionNumber > 1 ? "pociones" : "poción"} para un daño de{" "}
+                    {getDamage(potionNumber)}%
+                  </Text>
+                ))}
+                <Text style={styles.title}>TOTAL: {totalDamage}%</Text>
+              </View>
+            ) : (
+              <Text style={styles.title}>No hay ataques disponibles</Text>
+            )}
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    paddingVertical: 48,
     alignItems: "center",
-    justifyContent: "center",
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
+  },
+  text: {
+    fontSize: 16,
+    marginVertical: 8,
   },
   separator: {
     marginVertical: 30,
     height: 1,
     width: "80%",
   },
-  getStartedContainer: {
+  inputGroupContainer: {
+    alignItems: "stretch",
+    marginBottom: 32,
+    width: "80%",
+  },
+  inputGroup: {
+    flexDirection: "row",
+    marginBottom: 16,
+    justifyContent: "space-between",
     alignItems: "center",
-    marginHorizontal: 50,
+  },
+  inputLabel: {
+    flex: 8,
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginTop: 8,
+    flex: 2,
+    maxWidth: 50,
+    padding: 8,
+  },
+  resultsContainer: {
+    width: "80%",
   },
 });
