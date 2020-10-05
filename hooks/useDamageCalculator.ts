@@ -1,57 +1,74 @@
 import { getTotalDamage } from "./../utils/damage";
-import { filterZeroValues, sum } from "./../utils/arrayManipulation";
+import { filterZeroValues } from "./../utils/arrayManipulation";
 import { useState } from "react";
-import { inventory, cacheType } from "../constants/types";
+import { potionInventory } from "../constants/types";
 import { memoize } from "../utils/memo";
 
-export const getPotionsUsed = (
-  currentState: inventory,
-  prevState: inventory | null
-): number => {
+const memoizedGetAttacksForMaximumDamage = memoize(getAttacksForMaximumDamage);
+
+function getMaxDamageNextAttacks(
+  possibleNextStates: potionInventory[],
+  currentState: potionInventory
+) {
+  return possibleNextStates
+    .map((possibleState) =>
+      memoizedGetAttacksForMaximumDamage(possibleState, currentState)
+    )
+    .reduce((a, b) => (getTotalDamage(b) > getTotalDamage(a) ? b : a));
+}
+
+export function getPotionsUsedNumber(
+  currentState: potionInventory,
+  prevState: potionInventory | null
+): number {
   if (!prevState) return 0;
-  const potionsUsed: inventory = prevState
+  const potionsUsed: potionInventory = prevState
     .map((potion, index) => potion - currentState[index])
     .filter(filterZeroValues);
   return potionsUsed.length;
-};
+}
 
-export const getPossibleAttacks = (arr: inventory): inventory[] => {
-  return arr
+export function getPossibleNexStates(
+  currentState: potionInventory
+): potionInventory[] {
+  return currentState
     .reduce(
-      (acc, number) => {
-        const elements0 = acc.map((v) => v + number);
-        const elements1 = number > 0 ? acc.map((v) => v + (number - 1)) : [];
-        return [...elements0, ...elements1];
+      (acc: potionInventory[], potionNumber: number) => {
+        const potionNotUsedNumber = acc.map((v) => [...v, potionNumber]);
+        const potionUsedNumber =
+          potionNumber > 0 ? acc.map((v) => [...v, potionNumber - 1]) : [];
+        return [...potionNotUsedNumber, ...potionUsedNumber];
       },
-      [""]
+      [[]]
     )
-    .slice(1)
-    .map((string) => string.split("").map((v) => parseInt(v)));
-};
+    .slice(1);
+}
 
-export const getMaximumDamage = (
-  potionState: inventory,
-  prevState: inventory | null = null
-): number[] => {
-  const possibleAttacks = getPossibleAttacks(potionState);
-  const potionsUsed = getPotionsUsed(potionState, prevState);
+export function getAttacksForMaximumDamage(
+  currentPotionState: potionInventory,
+  prevState: potionInventory | null = null
+): number[] {
+  const possibleNextStates = getPossibleNexStates(currentPotionState);
+  const currentStatePotionsUsed = getPotionsUsedNumber(
+    currentPotionState,
+    prevState
+  );
 
-  if (!possibleAttacks.length) return [potionsUsed];
+  if (!possibleNextStates.length) return [currentStatePotionsUsed];
 
-  const maxChild = possibleAttacks
-    .map((child) => memoizedGetMaximumDamage(child, potionState))
-    .reduce((a, b) => (getTotalDamage(b) > getTotalDamage(a) ? b : a));
+  const maxDamageNextAttacks = getMaxDamageNextAttacks(
+    possibleNextStates,
+    currentPotionState
+  );
 
-  return [...maxChild, potionsUsed]
+  return [...maxDamageNextAttacks, currentStatePotionsUsed]
     .filter(filterZeroValues)
     .sort((a, b) => b - a);
-};
+}
 
-const memoizedGetMaximumDamage = memoize(getMaximumDamage);
-
-export const useDamageCalculator = (
-  initialState: inventory
-): [number[], typeof setPotions] => {
-  const [potions, setPotions] = useState<inventory>(initialState);
-  return [getMaximumDamage(potions), setPotions];
-};
+export function useDamageCalculator(
+  initialState: potionInventory
+): [number[], typeof setPotions] {
+  const [potions, setPotions] = useState<potionInventory>(initialState);
+  return [getAttacksForMaximumDamage(potions), setPotions];
+}

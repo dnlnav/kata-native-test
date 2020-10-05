@@ -1,6 +1,6 @@
 import {
-  getPossibleAttacks,
-  getMaximumDamage,
+  getPossibleNexStates,
+  getAttacksForMaximumDamage,
   getDamage,
 } from "../useDamageCalculator";
 
@@ -18,7 +18,7 @@ describe("getPossibleCombinations", () => {
           [1, 3, 0],
           [1, 2, 0],
         ];
-        expect(getPossibleAttacks(testPotionArray).sort()).toEqual(
+        expect(getPossibleNexStates(testPotionArray).sort()).toEqual(
           expectedCombinations.sort()
         );
       });
@@ -26,7 +26,7 @@ describe("getPossibleCombinations", () => {
     describe("when one of the potion's quantity is 0", () => {
       test("return a 0 for that potion for all combinations", () => {
         const testPotionArray = [2, 0, 1];
-        getPossibleAttacks(testPotionArray).forEach((combination) =>
+        getPossibleNexStates(testPotionArray).forEach((combination) =>
           expect(combination[1]).toEqual(0)
         );
       });
@@ -34,7 +34,7 @@ describe("getPossibleCombinations", () => {
     describe("when there is no possible attacks", () => {
       test("returns an empty array", () => {
         const testPotionArray = [0, 0, 0];
-        expect(getPossibleAttacks(testPotionArray)).toEqual([]);
+        expect(getPossibleNexStates(testPotionArray)).toEqual([]);
       });
     });
   });
@@ -45,7 +45,9 @@ describe("getMaximumDamage", () => {
     test("returns the damage per attack for the maximum damage", () => {
       const testPotionArray = [2, 2, 1, 1, 1];
       const expectedResult = [5, 1, 1];
-      expect(getMaximumDamage(testPotionArray)).toEqual(expectedResult);
+      expect(getAttacksForMaximumDamage(testPotionArray)).toEqual(
+        expectedResult
+      );
     });
   });
 });
